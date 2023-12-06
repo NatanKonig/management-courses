@@ -10,9 +10,9 @@ class BaseModel(Model):
         abstract = True
 
 class Usuario(BaseModel):
-    username = CharField(max_length=100)
+    username = CharField(max_length=100, unique=True)
     password = CharField(max_length=100)
-    email = CharField(max_length=100)
+    email = CharField(max_length=100, unique=True)
 
 class Admin(Usuario):
     pass
@@ -23,6 +23,7 @@ class Aluno(Usuario):
     cpf = CharField(max_length=14)
     telefone = CharField(max_length=14)
     data_nascimento = DateField()
+    sexo = CharField(max_length=1)
 
 class Professor(Usuario):
     matricula = IntegerField()
@@ -30,6 +31,7 @@ class Professor(Usuario):
     cpf = CharField(max_length=14)
     telefone = CharField(max_length=14)
     data_nascimento = DateField()
+    sexo = CharField(max_length=1)
 
 class Curso(BaseModel):
     nome = CharField(max_length=100)
