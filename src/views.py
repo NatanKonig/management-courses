@@ -328,7 +328,7 @@ class Cadatrar_aluno():
         self.txtData_nasc.place(relx=0.37, rely=0.5, relwidth=0.57)
 
         # Label e Cobobox Sexo
-        sexo = ['M','F']
+        sexo = ['Homem', 'Mulher']
         self.lblSexo = ttk.Label(self.frame1, text='Sexo:', font=('verdana', 11, 'bold'))
         self.lblSexo.place(relx=0.03, rely=0.61)
 
