@@ -35,27 +35,21 @@ class Professor(Usuario):
 
 class Curso(BaseModel):
     nome = CharField(max_length=100)
-    coordenador = ForeignKeyField(Professor, backref='Curso')
+    coordenador = ForeignKeyField(Professor, backref='curso')
     descricao = TextField()
     carga_horaria = IntegerField()
     data_inicio = DateField()
 
 class Turma(BaseModel):
     sala = CharField(max_length=10)
-    curso = ForeignKeyField(Curso, backref='Turma')
+    curso = ForeignKeyField(Curso, backref='turma')
     max_alunos = IntegerField()  
     horario = CharField()
 
-class AlunoTurma(Model):
-    aluno = ForeignKeyField(Aluno, backref='AlunoTurma')
-    turma = ForeignKeyField(Turma, backref='AlunoTurma')
+class AlunoTurma(BaseModel):
+    aluno = ForeignKeyField(Aluno, backref='turmas')
+    turma = ForeignKeyField(Turma, backref='alunos')
 
-    class Meta:
-        database = db
-
-class ProfessorTurma(Model):
-    turma = ForeignKeyField(Turma, backref='ProfessorTurma')
-    professor = ForeignKeyField(Professor, backref='ProfessorTurma')
-
-    class Meta:
-        database = db
+class ProfessorTurma(BaseModel):
+    turma = ForeignKeyField(Turma, backref='professores')
+    professor = ForeignKeyField(Professor, backref='turmas')
