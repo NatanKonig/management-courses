@@ -4,7 +4,7 @@ from controllers import (center, login, telas_controle, listar, obter_valores_ca
                          obter_valores_cadastro_curso, obter_valores_cadastro_turma, listar_turmas_faz_parte, usuario, obter_mudancas_perfil_aluno,
                          pegar_turma_selecionada)
 from db_utils import (listar_cursos, att_aluno_user, buscar_turma, listar_professores, listar_turma, buscar_turma_selecionada, buscar_curso_sobre,
-                      buscar_alunos_sobre)
+                      buscar_alunos_sobre, delete_aluno, delete_professor, matricular_aluno_na_turma, matricular_coordenador_na_turma, buscar_curso_nome)
 from tkcalendar import DateEntry
 
 class Aplicacao():
@@ -857,8 +857,7 @@ class Sobre_turma():
             self.listaCli.insert('', END, values=(aluno[0], aluno[1]))
 
 class Mais():
-    def __init__(self, turma=[]):
-        self.turma = turma
+    def __init__(self,):
         self.root = Tk()
         self.tela()
         self.frames()
@@ -866,7 +865,7 @@ class Mais():
         self.root.mainloop()
 
     def tela(self):
-        self.root.title("Sobre a turma")
+        self.root.title("Vincular alunos e professores a turmas")
         self.root.option_add("*tearOff", False)
         self.root.call("source", "./theme/forest-dark.tcl")
         self.style = ttk.Style(self.root)
@@ -880,18 +879,211 @@ class Mais():
         self.frame1.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
     
     def widgets(self):
-        self.btnCadastrar_aluno = ttk.Button(self.frame1, text='Vincular aluno a turma')
+        self.btnCadastrar_aluno = ttk.Button(self.frame1, text='Vincular aluno a turma', command=Vincular_aluno)
         self.btnCadastrar_aluno.place(relx=0.7,rely=0.3,anchor="center")
         
-        self.btnCadastrar_professor = ttk.Button(self.frame1, text='Vincular professor a turma')
+        self.btnCadastrar_professor = ttk.Button(self.frame1, text='Vincular professor a turma', command=Vincular_professor)
         self.btnCadastrar_professor.place(relx=0.7,rely=0.6,anchor="center")
         
-        self.btnDeletar_aluno = ttk.Button(self.frame1, text='Deletar aluno')
+        self.btnDeletar_aluno = ttk.Button(self.frame1, text='Deletar aluno', command=Deletar_aluno)
         self.btnDeletar_aluno.place(relx=0.2,rely=0.3,anchor="center")
         
-        self.btnDeletar_professor = ttk.Button(self.frame1, text='Deletar professor')
+        self.btnDeletar_professor = ttk.Button(self.frame1, text='Deletar professor', command=Deletar_professor)
         self.btnDeletar_professor.place(relx=0.2,rely=0.6,anchor="center")
+
+class Vincular_aluno():
+    def __init__(self,):
+        self.root = Tk()
+        self.tela()
+        self.frames()
+        self.widgets()
+        self.root.mainloop()
+
+    def tela(self):
+        self.root.title("Vincular aluno")
+        self.root.option_add("*tearOff", False)
+        self.root.call("source", "./theme/forest-dark.tcl")
+        self.style = ttk.Style(self.root)
+        self.style.theme_use("forest-dark")
+        self.root.geometry('500x300')
+        self.root.resizable(False, False)
+        center(self.root)
+
+    def frames(self):
+        self.frame1 = Frame(self.root)
+        self.frame1.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
+    
+    def widgets(self):
         
+        alunos = [f'{aluno.id} {aluno.nome}' for aluno in listar('aluno')]
+        cursos = listar_cursos()
+
+        self.txtAlunoSelecionado = ttk.Combobox(self.frame1, values=alunos, state='readonly')
+        self.txtAlunoSelecionado.place(relx=0.3, rely=0.1)
+
+        self.txtCursoSelecionado = ttk.Combobox(self.frame1, values=cursos, state='readonly')
+        self.txtCursoSelecionado.place(relx=0.3, rely=0.3)
+
+        self.btnVincular_aluno = ttk.Button(self.frame1, text='Vincular aluno a turma selecionado', command= lambda: self.vincular())
+        self.btnVincular_aluno.place(relx=0.5,rely=0.7,anchor="center")
+
+        # Adicione um Label para exibir mensagens de aviso
+        self.aviso_label = ttk.Label(self.frame1, text="", font=('verdana', 11, 'bold'), foreground='red')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+    def vincular(self):
+        
+        aluno_id = self.txtAlunoSelecionado.get().split()[0]
+        curso_id = self.txtCursoSelecionado.get().split()[0]
+
+        matricular_aluno_na_turma(aluno_id, curso_id)
+
+        # Se não houver conflito, exiba a mensagem de sucesso
+        self.aviso_label.config(text="Aluno vinculado a turma com sucesso", foreground='green')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+class Vincular_professor():
+    def __init__(self,):
+        self.root = Tk()
+        self.tela()
+        self.frames()
+        self.widgets()
+        self.root.mainloop()
+
+    def tela(self):
+        self.root.title("Vincular professor")
+        self.root.option_add("*tearOff", False)
+        self.root.call("source", "./theme/forest-dark.tcl")
+        self.style = ttk.Style(self.root)
+        self.style.theme_use("forest-dark")
+        self.root.geometry('500x300')
+        self.root.resizable(False, False)
+        center(self.root)
+
+    def frames(self):
+        self.frame1 = Frame(self.root)
+        self.frame1.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
+    
+    def widgets(self):
+        
+        professores = [f'{aluno.id} {aluno.nome}' for aluno in listar('professor')]
+        turmas = [(turma.id, turma.sala, turma.curso_id) for turma in listar('turma')]
+        turmas_exibir = [f'{turma[1]} - {buscar_curso_nome(turma[2])}' for turma in turmas]
+
+        self.txtProfessorSelecionado = ttk.Combobox(self.frame1, values=professores, state='readonly')
+        self.txtProfessorSelecionado.place(relx=0.3, rely=0.1)
+
+        self.txtTurmaSelecionado = ttk.Combobox(self.frame1, values=turmas_exibir, state='readonly')
+        self.txtTurmaSelecionado.place(relx=0.3, rely=0.3)
+
+        self.btnVincular_professor = ttk.Button(self.frame1, text='Vincular aluno a turma selecionado', command= lambda: self.vincular())
+        self.btnVincular_professor.place(relx=0.5,rely=0.7,anchor="center")
+
+        # Adicione um Label para exibir mensagens de aviso
+        self.aviso_label = ttk.Label(self.frame1, text="", font=('verdana', 11, 'bold'), foreground='red')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+    def vincular(self):
+
+        turma_select = self.txtTurmaSelecionado.get().split(' -')
+        for turma in listar('turma'):
+            if turma.sala == turma_select[0].strip() and buscar_curso_nome(turma.curso_id) == turma_select[1].strip():
+                turma_id = turma.id
+                break
+
+        professor_id = self.txtProfessorSelecionado.get().split()[0]
+
+        matricular_coordenador_na_turma(professor_id, turma_id)
+
+        # Se não houver conflito, exiba a mensagem de sucesso
+        self.aviso_label.config(text="Professor vinculado a turma com sucesso", foreground='green')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+class Deletar_aluno():
+    def __init__(self,):
+        self.root = Tk()
+        self.tela()
+        self.frames()
+        self.widgets()
+        self.root.mainloop()
+
+    def tela(self):
+        self.root.title("Deletar aluno")
+        self.root.option_add("*tearOff", False)
+        self.root.call("source", "./theme/forest-dark.tcl")
+        self.style = ttk.Style(self.root)
+        self.style.theme_use("forest-dark")
+        self.root.geometry('500x300')
+        self.root.resizable(False, False)
+        center(self.root)
+
+    def frames(self):
+        self.frame1 = Frame(self.root)
+        self.frame1.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
+    
+    def widgets(self):
+        
+        alunos = [f'{aluno.id} {aluno.nome}' for aluno in listar('aluno')]
+
+        self.txtAlunoSelecionado = ttk.Combobox(self.frame1, values=alunos, state='readonly')
+        self.txtAlunoSelecionado.place(relx=0.3, rely=0.1)
+
+        self.btnDeletar_aluno = ttk.Button(self.frame1, text='Excluir aluno selecionado', command= lambda: self.del_aluno())
+        self.btnDeletar_aluno.place(relx=0.5,rely=0.5,anchor="center")
+
+        # Adicione um Label para exibir mensagens de aviso
+        self.aviso_label = ttk.Label(self.frame1, text="", font=('verdana', 11, 'bold'), foreground='red')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+    def del_aluno(self):
+        delete_aluno(self.txtAlunoSelecionado.get())
+
+        # Se não houver conflito, exiba a mensagem de sucesso
+        self.aviso_label.config(text="Aluno apagado com sucesso", foreground='green')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+class Deletar_professor():
+    def __init__(self,):
+        self.root = Tk()
+        self.tela()
+        self.frames()
+        self.widgets()
+        self.root.mainloop()
+
+    def tela(self):
+        self.root.title("Deletar professor")
+        self.root.option_add("*tearOff", False)
+        self.root.call("source", "./theme/forest-dark.tcl")
+        self.style = ttk.Style(self.root)
+        self.style.theme_use("forest-dark")
+        self.root.geometry('500x300')
+        self.root.resizable(False, False)
+        center(self.root)
+
+    def frames(self):
+        self.frame1 = Frame(self.root)
+        self.frame1.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
+    
+    def widgets(self):
+        
+        professores = [f'{professor.id} {professor.nome}' for professor in listar('professor')]
+
+        self.txtProfessorSelecionado = ttk.Combobox(self.frame1, values=professores, state='readonly')
+        self.txtProfessorSelecionado.place(relx=0.3, rely=0.1)
+
+        self.btnDeletar_professor = ttk.Button(self.frame1, text='Excluir professor selecionado', command= lambda: self.del_professor())
+        self.btnDeletar_professor.place(relx=0.5,rely=0.5,anchor="center")
+
+        # Adicione um Label para exibir mensagens de aviso
+        self.aviso_label = ttk.Label(self.frame1, text="", font=('verdana', 11, 'bold'), foreground='red')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
+
+    def del_professor(self):
+        delete_professor(self.txtProfessorSelecionado.get())
+
+        # Se não houver conflito, exiba a mensagem de sucesso
+        self.aviso_label.config(text="Professor apagado com sucesso", foreground='green')
+        self.aviso_label.place(relx=0.5, rely=0.9, anchor="center")
 
 class Tela_professor():
     def __init__(self):

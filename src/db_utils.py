@@ -200,6 +200,12 @@ def buscar_curso(curso_id):
         )
     return curso
 
+    
+def buscar_curso_nome(curso_id):
+
+    curso = Curso.get(Curso.id == curso_id)
+    return curso.nome
+
 def criar_registro_turma(sala, curso, max_alunos, horario, coordenador):
     # Crie a turma
     turma = Turma.create(
@@ -290,3 +296,11 @@ def buscar_alunos_sobre(turma_id):
         alunos.append([aluno.matricula, aluno.nome])
 
     return alunos
+
+def delete_aluno(self):
+    id = self.split(' ')[0]
+    Aluno.delete().where(Aluno.id == id).execute()
+
+def delete_professor(self):
+    id = self.split(' ')[0]
+    Professor.delete().where(Professor.id == id).execute()
