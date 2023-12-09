@@ -1,4 +1,4 @@
-from peewee import *
+from peewee import CharField, IntegerField, DateField, TextField, ForeignKeyField, DateTimeField, Model
 from datetime import datetime
 from db_utils import db
 
