@@ -503,7 +503,7 @@ class Cadastar_curso():
         self.txtCarga_horaria.place(relx=0.3, rely=0.3, relwidth=0.65)
 
         # Entry e Label Data de inicio
-        self.lblData_inicio = ttk.Label(self.frame1, text='Carga horaria:', font=('verdana', 11, 'bold'))
+        self.lblData_inicio = ttk.Label(self.frame1, text='Data de inicio:', font=('verdana', 11, 'bold'))
         self.lblData_inicio.place(relx=0.03, rely=0.41)
 
         # botão para a criação
@@ -577,7 +577,7 @@ class Cadastar_turma():
         self.txtHorario = ttk.Entry(self.frame1)
         self.txtHorario.place(relx=0.3, rely=0.3, relwidth=0.65)
 
-        self.lblCoordenador = ttk.Label(self.frame1, text='Coordenador:', font=('verdana', 11, 'bold'))
+        self.lblCoordenador = ttk.Label(self.frame1, text='Professor:', font=('verdana', 11, 'bold'))
         self.lblCoordenador.place(relx=0.03, rely=0.41)
         Coordenador = listar_professores()
         self.txtCoordenador = ttk.Combobox(self.frame1, values= Coordenador, state="readonly" )
